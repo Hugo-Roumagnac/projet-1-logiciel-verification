@@ -1,0 +1,130 @@
+@startuml classes-tec
+
+package tec {
+
+  interface Transport <<public>> {
+    + allerArretSuivant()
+  }
+
+  interface Usager <<public>> {
+    + nom() : String
+    + monterDans(t : Transport)
+  }
+
+  interface Bus <<prive paquetage>> {
+    + aPlaceAssise() : boolean
+    + aPlaceDebout() : boolean
+    + demanderPlaceAssise(p : Passager)
+    + demanderPlaceDebout(p : Passager)
+    + demanderChangerEnDebout(p : Passager)
+    + demanderChangerEnAssis(p : Passager)
+    + demanderSortie(p : Passager)
+  }
+
+  interface Passager <<prive paquetage>> {
+    + nom() : String
+    + estDehors() : boolean
+    + estAssis() : boolean
+    + estDebout() : boolean
+    + accepterSortie()
+    + accepterPlaceAssise()
+    + accepterPlaceDebout()
+    + nouvelArret(bus : Bus, numeroArret : int)
+  }
+
+  class Autobus {
+    - jaugeAssis : JaugeNaturel
+    - jaugeDebout : JaugeNaturel
+    - passagers : Passager[]
+    - arret : int
+    + Autobus(nbAssis : int, nbDebout : int)
+    + aPlaceAssise() : boolean
+    + aPlaceDebout() : boolean
+    + demanderPlaceAssise(p : Passager)
+    + demanderPlaceDebout(p : Passager)
+    + demanderChangerEnDebout(p : Passager)
+    + demanderChangerEnAssis(p : Passager)
+    + demanderSortie(p : Passager)
+    + allerArretSuivant()
+    + toString() : String
+  }
+
+  class PassagerStandard {
+    - nom : String
+    - destination : int
+    - etat : EtatPassager
+    + PassagerStandard(nom : String, destination : int)
+    + nom() : String
+    + estDehors() : boolean
+    + estAssis() : boolean
+    + estDebout() : boolean
+    + accepterSortie()
+    + accepterPlaceAssise()
+    + accepterPlaceDebout()
+    + nouvelArret(bus : Bus, numeroArret : int)
+    + monterDans(t : Transport)
+    + toString() : String
+  }
+
+  class JaugeNaturel <<prive paquetage>> {
+    - valeur : long
+    - min : long
+    - max : long
+    + JaugeNaturel(vigieMin : long, vigieMax : long, depart : long)
+    + estRouge() : boolean
+    + estVert() : boolean
+    + estBleu() : boolean
+    + incrementer()
+    + decrementer()
+    + valeur() : long
+    + toString() : String
+  }
+
+  class EtatPassager <<prive paquetage>> {
+    - monEtat : Etat
+    + EtatPassager(e : Etat)
+    + estExterieur() : boolean
+    + estAssis() : boolean
+    + estDebout() : boolean
+    + estInterieur() : boolean
+    + toString() : String
+  }
+
+  enum Etat {
+    ASSIS
+    DEBOUT
+    DEHORS
+  }
+
+  class UsagerInvalideException <<exception controlee>> {
+    + quelUsager : Usager
+    + quelTransport : Transport
+  }
+
+  Transport <|.. Autobus
+  Bus <|.. Autobus
+  Usager <|.. PassagerStandard
+  Passager <|.. PassagerStandard
+
+  Autobus --> "0..*" Passager : passagers
+  Autobus *-- "2" JaugeNaturel
+  PassagerStandard *-- "1" EtatPassager : etat
+  EtatPassager +-- Etat
+  Autobus ..> UsagerInvalideException
+  PassagerStandard ..> UsagerInvalideException
+
+}
+
+note "Interfaces publiques" as N1
+N1 .. Transport
+N1 .. Usager
+
+note "Interfaces privees au paquetage tec" as N2
+N2 .. Bus
+N2 .. Passager
+
+note "Classes privees au paquetage tec" as N3
+N3 .. JaugeNaturel
+N3 .. EtatPassager
+
+@enduml
